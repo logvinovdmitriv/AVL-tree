@@ -19,11 +19,61 @@ private:
 	
 	Node* Root = nullptr;
 	int size = NULL;
-	void insertNode(Node* current, Node* nodeForInsert);
+	Node* insertNode(Node* current, T data)
+	{
+		/* 1. Perform the normal BST insertion */
+		if (current == nullptr)
+			return(newNode(data));
+
+		if (data < current->data)
+			current->pLeft = insertNode(current->pLeft, data);
+		else if (data > current->data)
+			current->pRight = insertNode(current->pRight, data);
+		else // Equal keys are not allowed in BST  
+			return current;
+
+		/* 2. Update getHeight of this ancestor current */
+		current->height = 1 + max(getHeight(current->pLeft),
+			getHeight(current->pRight));
+
+		/* 3. Get the balance factor of this ancestor
+			current to check whether this current became
+			unbalanced */
+		int balance = getBalance(current);
+
+		// If this current becomes unbalanced, then  
+		// there are 4 cases  
+
+		// Left Left Case  
+		if (balance > 1 && data < current->pLeft->data)
+			return rightRotate(current);
+
+		// Right Right Case  
+		if (balance < -1 && data > current->pRight->data)
+			return leftRotate(current);
+
+		// Left Right Case  
+		if (balance > 1 && data > current->pLeft->data)
+		{
+			current->pLeft = leftRotate(current->pLeft);
+			return rightRotate(current);
+		}
+
+		// Right Left Case  
+		if (balance < -1 && data < current->pRight->data)
+		{
+			current->pRight = rightRotate(current->pRight);
+			return leftRotate(current);
+		}
+
+		/* return the (unchanged) current pointer */
+		return current;
+	}
 	bool isExistNode(Node* current, T& data);
 	void printNode(Node* current);
 	void removeNode(Node* current, T& data);
 	void removeLeafs(Node* current);
+	void InsertLeftAndRightBranch(Node* current);
 
 	static int Max(int a, int b);
 	static int getHeight(Node* current);
@@ -63,6 +113,22 @@ private:
 		return x;
 	}
 
+	Node* newNode(T data)
+	{
+		Node* node = new Node();
+		node->data = data;
+		node->pLeft = nullptr;
+		node->pRight = nullptr;
+		node->height = 1; // new node is initially 
+						// added at leaf 
+		if (Root == nullptr)
+		{
+			Root = node;
+		}
+		return(node);
+	}
+	
+
 public:
 	bool isExist(T data);
 	void insert(T data);
@@ -82,13 +148,13 @@ inline AVL<T>::~AVL()
 template<typename T>
 inline void AVL<T>::printTree()
 {
-	if (size > 0)
+	if (Root == nullptr)
 	{
-		printNode(Root);
+		cout << "Tree is empty" << endl;
 	}
 	else
 	{
-		cout << "Tree is empty" << endl;
+		printNode(Root);
 	}
 
 }
@@ -122,6 +188,127 @@ inline void AVL<T>::removeLeafs(Node* current)
 }
 
 template<typename T>
+inline void AVL<T>::remove(T data)
+{
+	removeNode(Root, data);
+}
+
+
+
+
+
+
+
+
+
+template<typename T>
+inline void AVL<T>::removeNode(Node* current, T& data)
+{
+	if (current->data == data && Root == current)
+	{
+		auto forDelete = current;
+		Root = nullptr;
+		if (forDelete->pLeft != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pLeft);
+		};
+		if (forDelete->pRight != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pRight);
+		};
+	};
+	if (current->pLeft->data == data)
+	{
+		auto forDelete = current->pLeft;
+		current->pLeft = nullptr;
+		if (forDelete->pLeft != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pLeft);
+		};
+		if (forDelete->pRight != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pRight);
+		};
+		return;
+	};
+	if (current->pRight->data == data)
+	{
+		auto forDelete = current->pRight;
+		current->pRight = nullptr;
+		if (forDelete->pLeft != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pLeft);
+		};
+		if (forDelete->pRight != nullptr)
+		{
+			InsertLeftAndRightBranch(forDelete->pRight);
+		};
+
+		return;
+	};
+	if (current->data > data)
+	{
+		removeNode(current->pLeft, data);
+		return;
+	};
+	if (current->data <data)
+	{
+		removeNode(current->pRight, data);
+		return;
+	};
+	
+	return;
+}
+
+
+template<typename T>
+inline void AVL<T>::InsertLeftAndRightBranch(Node* current)
+{
+	if (current->pLeft != nullptr)
+	{
+		InsertLeftAndRightBranch(current->pLeft);
+		
+	};
+	if (current->pRight != nullptr)
+	{
+		InsertLeftAndRightBranch(current->pRight);
+		
+	};
+	if (current != nullptr)
+	{
+		insert(current->data);
+	}
+	
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<typename T>
 inline int AVL<T>::Max(int a, int b)
 {
 	return ((a > b) ? a : b);
@@ -148,167 +335,20 @@ inline void AVL<T>::printNode(Node* current)
 {
 	if (current != nullptr)
 	{
-		cout << current->data << "\t";
+		cout <<"current = "<< current->data << endl;
 		printNode(current->pLeft);
 		printNode(current->pRight);
 
 	};
 }
-template<typename T>
-inline void AVL<T>::remove(T data)
-{
-	removeNode(Root, data);
-}
 
-template<typename T>
-inline void AVL<T>::removeNode(Node* current, T& data)
-{
-	if (Root->data == data)
-	{
-		auto oldRoot = Root;
-		Root = Root->pLeft;
-		insertNode(Root, oldRoot->pRight);
-		delete oldRoot;
-		size--;
-		current = Root;
-		return;
-	};
-	if (current->pLeft != nullptr)
-	{
-		if (current->pLeft->data == data)
-		{
-			auto forDelete = current->pLeft;
-			if (forDelete->pLeft != nullptr)
-			{
-				insertNode(Root, forDelete->pLeft);
-			};
-			if (forDelete->pRight != nullptr)
-			{
-				insertNode(Root, forDelete->pRight);
-			}
-			delete forDelete;
-			size--;
-			current->pLeft = nullptr;
-			return;
-
-		};
-	}
-
-	if (current->pRight != nullptr)
-	{
-		if (current->pRight->data == data)
-		{
-			auto forDelete = current->pRight;
-			if (forDelete->pLeft != nullptr)
-			{
-				insertNode(Root, forDelete->pLeft);
-			};
-			if (forDelete->pRight != nullptr)
-			{
-				insertNode(Root, forDelete->pRight);
-			}
-			delete forDelete;
-			size--;
-			current->pRight = nullptr;
-			return;
-		};
-	}
-	if (current->data > data)
-	{
-		removeNode(current->pLeft, data);
-	};
-	if (current->data < data)
-	{
-		removeNode(current->pRight, data);
-	};
-}
 
 template<typename T>
 inline void AVL<T>::insert(T data)
 {
-	Node* nodeForInsert = new Node;
-	nodeForInsert->data = data;
-	auto current = Root;
-	if (Root == nullptr)
-	{
-		Root = nodeForInsert;
-	}
-	insertNode(current, nodeForInsert);
-	nodeForInsert->height = 1 + Max(getHeight(nodeForInsert->pLeft), getHeight(nodeForInsert->pRight));
-	size++;
+	Root = insertNode(Root, data);
+};
 
-	//balance = pLeft->height-pRight->Height
-	int balance = getBalance(nodeForInsert);
-
-//если не сбалансированно !(-1<balance<1)
-	  // Left Left Case  
-	if ((balance > 1) && (nodeForInsert->data < nodeForInsert->pLeft->data))
-		nodeForInsert = rightRotate(nodeForInsert);
-
-	// Right Right Case  
-	if ((balance < -1) && (nodeForInsert->data >nodeForInsert->pRight->data))
-		nodeForInsert =  leftRotate(nodeForInsert);
-
-	// Left Right Case  
-	if ((balance > 1) && (nodeForInsert->data > nodeForInsert->pLeft->data))
-	{
-		nodeForInsert->pLeft = leftRotate(nodeForInsert->pLeft);
-		nodeForInsert = rightRotate(nodeForInsert);
-	}
-
-	// Right Left Case  
-	if ((balance < -1) && (nodeForInsert->data < nodeForInsert->pRight->data))
-	{
-		nodeForInsert->pRight = rightRotate(nodeForInsert->pRight);
-		nodeForInsert = leftRotate(nodeForInsert);
-	}
-
-
-}
-
-template<typename T>
-inline void AVL<T>::insertNode(Node* current, Node* nodeForInsert)
-{
-	if (current == nullptr)
-	{
-		current = nodeForInsert;
-	};
-
-	if (nodeForInsert != nullptr)
-	{
-		if (nodeForInsert->data < current->data)
-		{
-			if (current->pLeft == nullptr)
-			{
-				current->pLeft = nodeForInsert;
-			}
-			else
-			{
-				insertNode(current->pLeft, nodeForInsert);
-			}
-
-		};
-		if (nodeForInsert->data > current->data)
-		{
-			if (current->pRight == nullptr)
-			{
-				current->pRight = nodeForInsert;
-			}
-			else
-			{
-				insertNode(current->pRight, nodeForInsert);
-			}
-
-		};
-
-		if (nodeForInsert->data == current->data)
-		{
-			current->data = nodeForInsert->data;
-		};
-
-	};
-
-}
 
 
 template<typename T>
@@ -328,3 +368,4 @@ inline bool AVL<T>::isExistNode(Node* current, T& data)
 	isExistNode(current->pRight, data);
 	return false;
 };
+
