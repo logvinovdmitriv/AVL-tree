@@ -89,8 +89,8 @@ private:
 		x->pRight = T2;
 
 		// Update heights  
-		x->height = max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
-		y->height = max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+		x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
+		y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
 
 		// Return new root  
 		return y;
@@ -106,8 +106,8 @@ private:
 		y->pLeft = T2;
 
 		// Update heights  
-		y->height = max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
-		x->height = max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
+		y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+		x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
 
 		// Return new root  
 		return x;
