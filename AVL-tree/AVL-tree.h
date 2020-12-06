@@ -81,36 +81,53 @@ private:
 	
 	Node* leftRotate(Node* x)
 	{
-		Node* y = x->pRight;
-		Node* T2 = y->pLeft;
+		if (x != nullptr)
+		{
+			Node* y = x->pRight;
+			Node* T2 = nullptr;
+			if (y != nullptr)
+			{
+				T2 = y->pLeft;
 
-		// Perform rotation  
-		y->pLeft = x;
-		x->pRight = T2;
+				// Perform rotation  
+				y->pLeft = x;
+				x->pRight = T2;
 
-		// Update heights  
-		x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
-		y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+				// Update heights  
+				x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
+				y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
 
-		// Return new root  
-		return y;
+				// Return new root  
+				return y;
+			};
+
+		}
+		
 	}
 
 	Node* rightRotate(Node* y)
 	{
-		Node* x = y->pLeft;
-		Node* T2 = x->pRight;
+		if (y != nullptr)
+		{
+			Node* x = y->pLeft;
+			Node* T2 = nullptr;
+			if (x != nullptr)
+			{
+				T2 = x->pRight;
+				// Perform rotation 
+				x->pRight = y;
+				y->pLeft = T2;
 
-		// Perform rotation  
-		x->pRight = y;
-		y->pLeft = T2;
+				// Update heights  
+				y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+				x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
 
-		// Update heights  
-		y->height = Max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
-		x->height = Max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
-
-		// Return new root  
-		return x;
+				// Return new root  
+				return x;
+			};
+			
+		}
+		
 	}
 
 	Node* newNode(T data)
@@ -204,58 +221,69 @@ inline void AVL<T>::remove(T data)
 template<typename T>
 inline void AVL<T>::removeNode(Node* current, T& data)
 {
-	if (current->data == data && Root == current)
+	if (current != nullptr)
 	{
-		auto forDelete = current;
-		Root = nullptr;
-		if (forDelete->pLeft != nullptr)
+		if (current->data == data && Root == current)
 		{
-			InsertLeftAndRightBranch(forDelete->pLeft);
+			auto forDelete = current;
+			Root = nullptr;
+			if (forDelete->pLeft != nullptr)
+			{
+				InsertLeftAndRightBranch(forDelete->pLeft);
+			};
+			if (forDelete->pRight != nullptr)
+			{
+				InsertLeftAndRightBranch(forDelete->pRight);
+			};
 		};
-		if (forDelete->pRight != nullptr)
+		if (current->pLeft != nullptr)
 		{
-			InsertLeftAndRightBranch(forDelete->pRight);
-		};
-	};
-	if (current->pLeft->data == data)
-	{
-		auto forDelete = current->pLeft;
-		current->pLeft = nullptr;
-		if (forDelete->pLeft != nullptr)
-		{
-			InsertLeftAndRightBranch(forDelete->pLeft);
-		};
-		if (forDelete->pRight != nullptr)
-		{
-			InsertLeftAndRightBranch(forDelete->pRight);
-		};
-		return;
-	};
-	if (current->pRight->data == data)
-	{
-		auto forDelete = current->pRight;
-		current->pRight = nullptr;
-		if (forDelete->pLeft != nullptr)
-		{
-			InsertLeftAndRightBranch(forDelete->pLeft);
-		};
-		if (forDelete->pRight != nullptr)
-		{
-			InsertLeftAndRightBranch(forDelete->pRight);
+			if (current->pLeft->data == data)
+			{
+				auto forDelete = current->pLeft;
+				current->pLeft = nullptr;
+				if (forDelete->pLeft != nullptr)
+				{
+					InsertLeftAndRightBranch(forDelete->pLeft);
+				};
+				if (forDelete->pRight != nullptr)
+				{
+					InsertLeftAndRightBranch(forDelete->pRight);
+				};
+				return;
+			};
 		};
 
-		return;
-	};
-	if (current->data > data)
-	{
-		removeNode(current->pLeft, data);
-		return;
-	};
-	if (current->data <data)
-	{
-		removeNode(current->pRight, data);
-		return;
-	};
+		if (current->pRight != nullptr)
+		{
+			if (current->pRight->data == data)
+			{
+				auto forDelete = current->pRight;
+				current->pRight = nullptr;
+				if (forDelete->pLeft != nullptr)
+				{
+					InsertLeftAndRightBranch(forDelete->pLeft);
+				};
+				if (forDelete->pRight != nullptr)
+				{
+					InsertLeftAndRightBranch(forDelete->pRight);
+				};
+
+				return;
+			};
+		};
+		
+		if (current->data > data)
+		{
+			removeNode(current->pLeft, data);
+			return;
+		};
+		if (current->data < data)
+		{
+			removeNode(current->pRight, data);
+			return;
+		};
+	}
 	
 	return;
 }
