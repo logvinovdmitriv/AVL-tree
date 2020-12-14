@@ -33,7 +33,7 @@ private:
 			return current;
 
 		/* 2. Update getHeight of this ancestor current */
-		current->height = 1 + max(getHeight(current->pLeft),
+		current->height = 1 + Max(getHeight(current->pLeft),
 			getHeight(current->pRight));
 
 		/* 3. Get the balance factor of this ancestor
